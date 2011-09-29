@@ -1,5 +1,5 @@
 
-OBJS = test.o main.o
+OBJS = test.o main.o path.o
 
 #util_path.o visualizer.o \
 #  input.o integral_invariant.o \
@@ -15,9 +15,9 @@ OBJS = test.o main.o
 #  scp_maes_edges_tor.o scp_maesrot_edges_tor.o scp_farin3_cyl.o \
 #  shortest_circular_path.o
 
-SEGMOBJS = util_path.o scp_farinbb_cyl.o scp_farin_cyl.o scp_dynprog_cyl.o segmenter.o visualizer.o
+# SEGMOBJS = util_path.o scp_farinbb_cyl.o scp_farin_cyl.o scp_dynprog_cyl.o segmenter.o visualizer.o
 
-RANDOMPATHOBJS =  input.o util_path.o integral_invariant.o util_columnpath.o scp_dynprog_cyl.o randompaths.o visualizer.o
+#RANDOMPATHOBJS =  input.o util_path.o integral_invariant.o util_columnpath.o scp_dynprog_cyl.o randompaths.o visualizer.o
 
 #  scp_farinbb_no_cutaway.o
 

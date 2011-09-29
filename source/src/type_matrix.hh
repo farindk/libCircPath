@@ -7,7 +7,7 @@ template <class Cell>
 class Matrix
 {
 public:
-  Matrix() : mAllocData(NULL), mDataPtr(NULL) { mWidth=mHeight=mStride=0; }
+  Matrix() : mAllocData(0), mDataPtr(0) { mWidth=mHeight=mStride=0; }
   ~Matrix() { if (mAllocData) delete[] mAllocData; }
 
   typedef Cell CellType;

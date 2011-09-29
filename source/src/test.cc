@@ -9,6 +9,7 @@ using namespace std;
 #include "type_matrix.hh"
 #include "type_cell.hh"
 #include "type_edges.hh"
+#include "path.hh"
 
 
 void test()
