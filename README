@@ -1,6 +1,17 @@
 
-no description so far ...
+NOTES
+=====
 
-test modification
+- The CellMatrix used during the computations has an additional column, in which
+  each node is logically equivalent to a corresponding node in the first, left-most column.
+
+CostTraits<C>
+- defines the sum-type to use for cost-type C
+
+EdgeCosts<C,topology>
+- matrix defining the edge/node costs
+- topology=Torus:    costE/costSE/costS
+- topology=Cylinder: costNE/costE/costSE
+
 
 Dirk Farin
