@@ -14,7 +14,9 @@ enum Topology { Cylinder, Torus };
    - Cylindrical graphcs (with edges towards NE,E,SE).
 
    The NodeCosts class is a simplified EdgeCosts class for
-   which all outgoing edges have the same value.
+   which all incoming edges have the same value.
+
+   TODO: do we still need the topology parameter?
  */
 template <class Cost, Topology topology=Torus> class EdgeCosts;
 template <class Cost, Topology topology=Torus> class NodeCosts;
@@ -29,21 +31,22 @@ template <class Cost>
 class EdgeCosts_General : public Matrix< Quad<Cost> >
 {
 public:
+  EdgeCosts_General(bool planar) { mPlanar=planar; }
+
   typedef Cost CostType;
 
-  static const bool variableEdges = false;
-
-  bool hasNE() const { return true; }
-  bool hasE()  const { return true; }
-  bool hasSE() const { return true; }
-  bool hasS()  const { return true; }
+  bool isPlanar() const { return mPlanar; }
+  static const bool hasNE = true;
+  static const bool hasE  = true;
+  static const bool hasSE = true;
+  static const bool hasS  = true;
 
   void setCostNE(int x,int y, Cost c) { (*this)(x,y).a=c; }
   void setCostE (int x,int y, Cost c) { (*this)(x,y).b=c; }
   void setCostSE(int x,int y, Cost c) { (*this)(x,y).c=c; }
   void setCostS (int x,int y, Cost c) { (*this)(x,y).d=c; }
 
-  /* Cost of _outgoing_ edges.
+  /* Cost of _incoming_ edges.
      vertically, the modulo-operation is handled in this class,
      horizontally, it must be taken care of in the main program
    */
@@ -54,6 +57,8 @@ public:
 
 private:
   inline int h() const { return Matrix<Triple<Cost> >::getHeight(); }  // only to enhance code readability
+
+  bool mPlanar;
 };
 
 
@@ -67,18 +72,17 @@ class EdgeCosts<Cost,Torus> : public Matrix< Triple<Cost> >
 public:
   typedef Cost CostType;
 
-  static const bool variableEdges = false;
-
-  bool hasNE() const { return false; }
-  bool hasE()  const { return true; }
-  bool hasSE() const { return true; }
-  bool hasS()  const { return true; }
+  bool isPlanar() const { return true; }
+  static const bool hasNE = false;
+  static const bool hasE  = true;
+  static const bool hasSE = true;
+  static const bool hasS  = true;
 
   void setCostE (int x,int y, Cost c) { (*this)(x,y).a=c; }
   void setCostSE(int x,int y, Cost c) { (*this)(x,y).b=c; }
   void setCostS (int x,int y, Cost c) { (*this)(x,y).c=c; }
 
-  /* Cost of _outgoing_ edges.
+  /* Cost of _incoming_ edges.
      vertically (y),   the coordinate can be arbitrary (but positive)
      horizontally (x), the coordinate must be in the range [0;w[
    */
@@ -94,16 +98,15 @@ class NodeCosts<Cost,Torus> : public Matrix<Cost>
 public:
   typedef Cost CostType;
 
-  static const bool variableEdges = false;
-
-  bool hasNE() const { return false; }
-  bool hasE()  const { return true; }
-  bool hasSE() const { return true; }
-  bool hasS()  const { return true; }
+  bool isPlanar() const { return true; }
+  static const bool hasNE = false;
+  static const bool hasE  = true;
+  static const bool hasSE = true;
+  static const bool hasS  = true;
 
   void setCost(int x,int y, Cost c) { (*this)(x,y)=c; }
 
-  /* Cost of _outgoing_ edges.
+  /* Cost of _incoming_ edges.
      vertically (y),   the coordinate can be arbitrary (but positive)
      horizontally (x), the coordinate must be in the range [0;w[
    */
@@ -122,18 +125,17 @@ class EdgeCosts<Cost,Cylinder> : public Matrix< Triple<Cost> >
 public:
   typedef Cost CostType;
 
-  static const bool variableEdges = false;
-
-  bool hasNE() const { return true; }
-  bool hasE()  const { return true; }
-  bool hasSE() const { return true; }
-  bool hasS()  const { return false; }
+  bool isPlanar() const { return false; }
+  static const bool hasNE = true;
+  static const bool hasE  = true;
+  static const bool hasSE = true;
+  static const bool hasS  = false;
 
   void setCostNE(int x,int y, Cost c) { (*this)(x,y).a=c; }
   void setCostE (int x,int y, Cost c) { (*this)(x,y).b=c; }
   void setCostSE(int x,int y, Cost c) { (*this)(x,y).c=c; }
 
-  /* Cost of _outgoing_ edges.
+  /* Cost of _incoming_ edges.
      vertically, the modulo-operation is handled in this class,
      horizontally, it must be taken care of in the main program
    */
@@ -154,16 +156,15 @@ class NodeCosts<Cost,Cylinder> : public Matrix<Cost>
 public:
   typedef Cost CostType;
 
-  static const bool variableEdges = false;
-
-  bool hasNE() const { return true; }
-  bool hasE()  const { return true; }
-  bool hasSE() const { return true; }
-  bool hasS()  const { return false; }
+  bool isPlanar() const { return false; }
+  static const bool hasNE = true;
+  static const bool hasE  = true;
+  static const bool hasSE = true;
+  static const bool hasS  = false;
 
   void setCost(int x,int y, Cost c) { (*this)(x,y)=c; }
 
-  /* Cost of _outgoing_ edges.
+  /* Cost of _incoming_ edges.
      vertically, the modulo-operation is handled in this class,
      horizontally, it must be taken care of in the main program
    */
