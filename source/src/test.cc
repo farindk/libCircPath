@@ -1,7 +1,9 @@
 
 #include <iostream>
+#include <libvideogfx.hh>
 
 using namespace std;
+using namespace videogfx;
 
 
 //#include "scp_dynprog.hh"
@@ -12,11 +14,12 @@ using namespace std;
 #include "path.hh"
 #include "flooding.hh"
 #include "scp_dynprog.hh"
+#include "visualizer_videogfx.hh"
 
 
 void test_tinyTorus()
 {
-  static const float edges[2][2][3] = {
+  static const float edgeTab[2][2][3] = {
     { { 8,12,3 }, { 7,4,5  } },
     { { 2,9,10 }, { 11,1,6 } }
   };
@@ -29,24 +32,24 @@ void test_tinyTorus()
   CellMatrix< Cell_Std<float> > matrix;
   matrix.create(w+1,h*2,1);
 
-  EdgeCosts_Torus<float> bla;
-  bla.create(w,h);
-  for (int x=0;x<bla.getWidth();x++)
-    for (int y=0;y<bla.getHeight();y++)
+  EdgeCosts_Torus<float> edges;
+  edges.create(w,h);
+  for (int x=0;x<edges.getWidth();x++)
+    for (int y=0;y<edges.getHeight();y++)
       {
 	std::cout << "x=" << x << " y=" << y << " -> "
-		  << edges[y][x][0] << ";"
-		  << edges[y][x][1] << ";"
-		  << edges[y][x][2] << "\n";
+		  << edgeTab[y][x][0] << ";"
+		  << edgeTab[y][x][1] << ";"
+		  << edgeTab[y][x][2] << "\n";
 
-	bla.setCostE (x,y, edges[y][x][0]);
-	bla.setCostSE(x,y, edges[y][x][1]);
-	bla.setCostS (x,y, edges[y][x][2]);
+	edges.setCostE (x,y, edgeTab[y][x][0]);
+	edges.setCostSE(x,y, edgeTab[y][x][1]);
+	edges.setCostS (x,y, edgeTab[y][x][2]);
       }
 
   typedef Flooding< EdgeCosts_Torus<float>, CellMatrix< Cell_Std<float> > > MyFlooding;
 
-  MyFlooding::Flood_Unrestricted(bla,matrix, 0,h/2, 0,2*h-1);
+  MyFlooding::Flood_Unrestricted(edges,matrix, 0,h/2, 0,2*h-1);
 
   std::cout << "B.R.corner cost= " << matrix(w,h).costSum << "\n";
 }
@@ -54,30 +57,74 @@ void test_tinyTorus()
 #include <stdlib.h>
 void test_largeTorus()
 {
-  Cell_Std<float> cell;
+  typedef unsigned char Cost;
+  typedef CostTraits<Cost>::SumType CostSum;
 
   int w = 20000;
   int h = 20000;
 
-  CellMatrix< Cell_Std<float> > matrix;
+  CellMatrix< Cell_Std<CostSum> > matrix;
   matrix.create(w+1,h*2,1);
 
-  NodeCosts_Torus<unsigned char> bla;
-  bla.create(w,h);
-  for (int x=0;x<bla.getWidth();x++)
-    for (int y=0;y<bla.getHeight();y++)
+  NodeCosts_Torus<Cost> edges;
+  edges.create(w,h);
+  for (int x=0;x<edges.getWidth();x++)
+    for (int y=0;y<edges.getHeight();y++)
       {
 	int r = rand()%256;
-	bla.setCost (x,y, r);
-	//bla.setCostSE(x,y, r);
-	//bla.setCostS (x,y, r);
+	edges.setCost (x,y, r);
+	//edges.setCostSE(x,y, r);
+	//edges.setCostS (x,y, r);
       }
 
   std::cout << "flood...\n";
 
-  typedef Flooding< NodeCosts_Torus<unsigned char>, CellMatrix< Cell_Std<float> > > MyFlooding;
+  typedef Flooding< NodeCosts_Torus<Cost>, CellMatrix< Cell_Std<CostSum> > > MyFlooding;
 
-  MyFlooding::Flood_Unrestricted(bla,matrix, 0,0, 0,2*h-1);
+  MyFlooding::Flood_Unrestricted(edges,matrix, 0,0, 0,2*h-1);
 
   std::cout << "B.R.corner cost= " << matrix(w,h).costSum << "\n";
+}
+
+
+
+void test_dynProg_largeTorus()
+{
+  typedef unsigned char Cost;
+  typedef CostTraits<Cost>::SumType CostSum;
+
+  int w = 500;
+  int h = 500;
+
+  CellMatrix< Cell_Std<CostSum> > matrix;
+  matrix.create(w+1,h*2,1);
+
+  NodeCosts_Torus<Cost> edges;
+  edges.create(w,h);
+  for (int x=0;x<edges.getWidth();x++)
+    for (int y=0;y<edges.getHeight();y++)
+      {
+	int r = rand()%256;
+	edges.setCost (x,y, r);
+      }
+
+  std::cout << "search...\n";
+
+  //typedef Flooding< NodeCosts_Torus<unsigned char>, CellMatrix< Cell_Std<float> > > MyFlooding;
+
+  Bitmap<Pixel> costbm(w,h);
+  for (int y=0;y<h;y++)
+    for (int x=0;x<w;x++)
+      costbm.AskFrame()[y][x]=edges.costE(x,y);
+
+
+  Visualizer_VideoGfx visualizer;
+  visualizer.initialize(costbm, Visualizer::Torus);
+
+
+  SCP_DynProg<Torus, NodeCosts_Torus<unsigned char> > scp;
+  scp.setEdgeCosts(edges);
+  scp.setVisualizer(&visualizer);
+  scp.enableLogging();
+  scp.computeMinCostCircularPath();
 }

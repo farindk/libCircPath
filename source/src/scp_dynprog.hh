@@ -7,11 +7,12 @@
 #include "type_edges.hh"
 #include "path.hh"
 #include "flooding.hh"
+#include "logging.hh"
 
 
 template <Topology topology, class EdgeCostsT,
 	  class Cell = Cell_Std<typename CostTraits<typename EdgeCostsT::CostType>::SumType> >
-class SCP_DynProg // : public AlgorithmLogging
+class SCP_DynProg : public AlgorithmLogging
 {
 public:
   typedef typename EdgeCostsT::CostType Cost;

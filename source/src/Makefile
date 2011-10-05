@@ -1,5 +1,5 @@
 
-OBJS = test.o main.o path.o
+OBJS = test.o main.o path.o visualizer_videogfx.o
 
 #util_path.o visualizer.o \
 #  input.o integral_invariant.o \
@@ -21,11 +21,11 @@ OBJS = test.o main.o path.o
 
 #  scp_farinbb_no_cutaway.o
 
-CXXFLAGS = -O99 -g # `libvideogfx-config --cflags` -mtune=athlon64 `gsl-config --cflags`
+CXXFLAGS = -O0 -g `libvideogfx-config --cflags` # -mtune=athlon64 `gsl-config --cflags`
 CXX=g++
 
 shcp: $(OBJS)
-	g++ -O0 -g -o $@ $(OBJS) # `libvideogfx-config --libs` `gsl-config --libs`
+	g++ -O0 -g -o $@ $(OBJS) `libvideogfx-config --libs` # `gsl-config --libs`
 
 #segmenter: $(SEGMOBJS)
 #	g++ -O99 -o $@ $(SEGMOBJS) `libvideogfx-config --libs`

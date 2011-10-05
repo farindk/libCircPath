@@ -17,19 +17,18 @@ Path SCP_DynProg<topology, EdgeCostsT, Cell>::computeMinCostCircularPath()
 
       // logging output: print result for each start-node and draw path in visualization
 
-#if 0
-      if (d_enable_logging)
+      if (isLoggingEnabled())
 	{
 	  cout << "y:" << y << " : " << path.cost << endl;
 
-	  if (d_visual)
+	  Visualizer* v = getVisualizer();
+	  if (v)
 	    {
-	      d_visual->PrepareVisualization();
-	      DrawPath(d_visual->d_disp, path, Color<Pixel>(255,100,100));
-	      d_visual->ShowVisualization(true);
+	      v->prepareVisualization();
+	      v->drawPath(path, 0xffc000);
+	      v->showVisualization(true);
 	    }
 	}
-#endif
     }
 
   return bestpath;
@@ -45,14 +44,20 @@ Path SCP_DynProg<topology, EdgeCostsT, Cell>::computeMinCostCircularPath(int sta
   switch (topology)
     {
     case Torus:
-      m_matrix.create(w+1, h*2,1);
-      Flooding<EdgeCostsT,CellMatrix<Cell> >::Flood_Unrestricted(*m_edges,m_matrix, startrow,startrow, 0,h-1);
-      return ExtractPath(m_matrix, startrow);
+      {
+	m_matrix.create(w+1, h*2,1);
+	int floodStart = (EdgeCostsT::hasNE ? 0 : startrow);
+	int floodEnd   = (startrow+h);
+
+	Flooding<EdgeCostsT,CellMatrix<Cell> >::Flood_Unrestricted(*m_edges,m_matrix,
+								   startrow,startrow, floodStart,floodEnd);
+	return ExtractPath(m_matrix, startrow+h);
+      }
 
     case Cylinder:
       m_matrix.create(w+1, h  ,1);
       Flooding<EdgeCostsT,CellMatrix<Cell> >::Flood_Unrestricted(*m_edges,m_matrix, startrow,startrow, 0,h-1);
-      return ExtractPath(m_matrix, startrow+h);
+      return ExtractPath(m_matrix, startrow);
     }
 }
 #endif

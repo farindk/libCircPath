@@ -4,12 +4,14 @@
 template <class Cell, class EdgeCostsT>
 inline void fillNode(CellMatrix<Cell>& nodes, const EdgeCostsT& cost, int r, int c, int rModH, int cModW)
 {
-  typedef typename EdgeCostsT::CostType Cost;
+  typedef typename CostTraits<typename EdgeCostsT::CostType>::SumType CostSum;
 
-  Cost cE;  if (cost.hasE)  cE  = nodes(c-1,r  ).costSum + cost.costE (cModW, rModH);
-  Cost cSE; if (cost.hasSE) cSE = nodes(c-1,r-1).costSum + cost.costSE(cModW, rModH);
-  Cost cS;  if (cost.hasS)  cS  = nodes(c  ,r-1).costSum + cost.costS (cModW, rModH);
-  Cost cNE; if (cost.hasNE) cNE = nodes(c-1,r+1).costSum + cost.costNE(cModW, rModH);
+  CostSum cE;  if (cost.hasE)  cE  = nodes(c-1,r  ).costSum + cost.costE (cModW, rModH);
+  CostSum cSE; if (cost.hasSE) cSE = nodes(c-1,r-1).costSum + cost.costSE(cModW, rModH);
+  CostSum cS;  if (cost.hasS)  cS  = nodes(c  ,r-1).costSum + cost.costS (cModW, rModH);
+  CostSum cNE; if (cost.hasNE) cNE = nodes(c-1,r+1).costSum + cost.costNE(cModW, rModH);
+
+  //std::cout << r << ";" << c << " - " << cE << " " << cSE << " " << cS << " " << cNE << "\n";
 
   if (cost.hasE && (!cost.hasSE || cE <= cSE))
     {
@@ -177,7 +179,7 @@ void Flooding<EdgeCostsT,CellMatrixT>::Flood_Unrestricted(const EdgeCostsT& cost
   for (int r=firstFloodRow; r<=lastFloodRow; r++)
     {
       nodes(0,r).costSum = CostTraits<Cost>::LargeSum();
-      nodes(0,r).setNoPredecessor(); // TODO CHECK: not really needed
+      nodes(0,r).setNoPredecessor(); // (TODO CHECK: not really needed)
     }
 
 
@@ -186,9 +188,8 @@ void Flooding<EdgeCostsT,CellMatrixT>::Flood_Unrestricted(const EdgeCostsT& cost
   for (int r=firstStartRow; r<=lastStartRow; r++)
     { nodes(0,r).clear(); }
 
-  const int matrixHeight = nodes.getHeight();
-  nodes(0,          -1).costSum = CostTraits<Cost>::LargeSum();
-  nodes(0,matrixHeight).costSum = CostTraits<Cost>::LargeSum();
+  nodes(0,firstFloodRow-1).costSum = CostTraits<Cost>::LargeSum();
+  nodes(0,lastFloodRow +1).costSum = CostTraits<Cost>::LargeSum();
 
 
   // --- process remaining columns (except last) ---
@@ -196,8 +197,8 @@ void Flooding<EdgeCostsT,CellMatrixT>::Flood_Unrestricted(const EdgeCostsT& cost
   for (int c=1;c<w;c++)
     {
       // put blocking markers
-      if (cost.hasS || cost.hasSE) nodes(c,          -1).costSum = CostTraits<Cost>::LargeSum();
-      if (cost.hasNE)              nodes(c,matrixHeight).costSum = CostTraits<Cost>::LargeSum();
+      if (cost.hasS || cost.hasSE) nodes(c,firstFloodRow-1).costSum = CostTraits<Cost>::LargeSum();
+      if (cost.hasNE)              nodes(c,lastFloodRow +1).costSum = CostTraits<Cost>::LargeSum();
 
 
       // process flooding area
@@ -208,6 +209,13 @@ void Flooding<EdgeCostsT,CellMatrixT>::Flood_Unrestricted(const EdgeCostsT& cost
       for (int r=firstFloodRow;r<=lastFloodRow;r++)
 	{
 	  fillNode(nodes, cost, r,c, r %h,c);
+
+	  /*
+	  std::cout << c << ";" << r << " -> "
+		    << nodes(c,r).costSum << " "
+		    << nodes(c,r).prevX << " "
+		    << nodes(c,r).prevY << "\n";
+	  */
 	}
 #endif
 
@@ -241,12 +249,19 @@ void Flooding<EdgeCostsT,CellMatrixT>::Flood_Unrestricted(const EdgeCostsT& cost
 
   // --- process last column ---
 
-  nodes(w,          -1).costSum = CostTraits<Cost>::LargeSum();
-  nodes(w,matrixHeight).costSum = CostTraits<Cost>::LargeSum();
+  nodes(w,firstFloodRow-1).costSum = CostTraits<Cost>::LargeSum();
+  nodes(w,lastFloodRow +1).costSum = CostTraits<Cost>::LargeSum();
 
   for (int r=firstFloodRow;r<=lastFloodRow;r++)
     {
       fillNode(nodes, cost, r,w, r%h,0 /* w%w */);
+
+      /*
+	  std::cout << w << ";" << r << " -> "
+		    << nodes(w,r).costSum << " "
+		    << nodes(w,r).prevX << " "
+		    << nodes(w,r).prevY << "\n";
+      */
     }
 }
 

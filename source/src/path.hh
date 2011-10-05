@@ -6,8 +6,10 @@
 #include "type_cell.hh"
 #include "type_matrix.hh"
 
+#include <assert.h>
 #include <vector>
 
+#include <iostream>
 
 /*
   Stores a path in such a way that it is efficient to query
