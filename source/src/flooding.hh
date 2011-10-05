@@ -24,12 +24,16 @@ public:
 				 int rowRangeStart, int rowRangeEnd);
   */
 
+  static void FloodColumn(const EdgeCostsT& cost, CellMatrixT& nodes,
+			  int c, int cModW, int firstFloodRow, int lastFloodRow,
+			  int abovePath=0, int belowPath=0);
+
   // NEW ->
   static void Flood_Unrestricted(const EdgeCostsT& cost, CellMatrixT& nodes,
 				 int firstStartRow, int lastStartRow,
 				 int firstFloodRow, int lastFloodRow);
+  // TODO: add the possibility to start from only first and last row (for Maes initialization)
 
-#if 0
   /*
     if (cost.hasNE()) computeRangeFirst--;
     if (cost.hasSE() || cost.hasS()) computeRangeLast++;
@@ -39,11 +43,12 @@ public:
   /* Flood the whole area between (and including) the two paths.
      This function also fills the touched-path information.
    */
-  static void Flood_Bounded(const CostMatrixT&, NodeMatrixT&,
+  static void Flood_Bounded(const EdgeCostsT&, CellMatrixT&,
 			    int startrow,
-			    const ColumnPath& abovepath,
-			    const ColumnPath& belowpath);
+			    const Path& abovepath,
+			    const Path& belowpath);
 
+#if 0
   /* Flood between the two paths, starting at the 'startpoint', which must be in both paths.
      Flooding is in reverse direction (i.e., from right to left).
    */

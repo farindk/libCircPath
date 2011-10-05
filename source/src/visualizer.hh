@@ -25,6 +25,7 @@ public:
   virtual void prepareVisualization() { }
   virtual char showVisualization(bool wait_for_keypress=true) { }  // returns the key pressed
   virtual void drawPath(const Path& path, int colorHex) { }
+  virtual void drawArea(const Path& abovepath, const Path& belowpath, int colorHex) { }
 };
 
 

@@ -91,8 +91,8 @@ public:
 
   void processBounds(Index row, Index pathAbove_lasttop, Index pathBelow_firstbottom)
   {
-    if (row <= pathAbove_lasttop)     touchedAbove=true;
-    if (row >= pathBelow_firstbottom) touchedBelow=true;
+    touchedAbove |= (row <= pathAbove_lasttop);
+    touchedBelow |= (row >= pathBelow_firstbottom);
   }
 
   bool  touchedAbove;

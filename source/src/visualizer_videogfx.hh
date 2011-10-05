@@ -28,6 +28,7 @@ public:
   void prepareVisualization();
   char showVisualization(bool wait_for_keypress=true);  // returns the key pressed while showing the image
   void drawPath(const Path& path, int colorHex);
+  void drawArea(const Path& abovepath, const Path& belowpath, int colorHex);
 
 private:
   bool m_opened;
@@ -42,6 +43,7 @@ private:
 
 
 void drawPath(Image<Pixel>& img, const Path& path, Color<Pixel> col);
+void drawArea(Image<Pixel>& img, const Path& abovepath, const Path& belowpath, Color<Pixel> col);
 
 
 // -------------------- implementation --------------------

@@ -14,6 +14,7 @@ using namespace videogfx;
 #include "path.hh"
 #include "flooding.hh"
 #include "scp_dynprog.hh"
+#include "scp_maes.hh"
 #include "visualizer_videogfx.hh"
 
 
@@ -92,14 +93,15 @@ void test_dynProg_largeTorus()
 {
   typedef unsigned char Cost;
   typedef CostTraits<Cost>::SumType CostSum;
+  typedef NodeCosts_Torus<Cost> Edges;
 
-  int w = 500;
-  int h = 500;
+  int w = 2000;
+  int h = 2000;
 
   CellMatrix< Cell_Std<CostSum> > matrix;
   matrix.create(w+1,h*2,1);
 
-  NodeCosts_Torus<Cost> edges;
+  Edges edges;
   edges.create(w,h);
   for (int x=0;x<edges.getWidth();x++)
     for (int y=0;y<edges.getHeight();y++)
@@ -119,12 +121,14 @@ void test_dynProg_largeTorus()
 
 
   Visualizer_VideoGfx visualizer;
-  visualizer.initialize(costbm, Visualizer::Torus);
+  //visualizer.initialize(costbm, Visualizer::Torus);
 
 
-  SCP_DynProg<Torus, NodeCosts_Torus<unsigned char> > scp;
+  //SCP_DynProg<Torus, Edges> scp;
+  SCP_Maes<Torus, Edges> scp;
   scp.setEdgeCosts(edges);
-  scp.setVisualizer(&visualizer);
+  //scp.setVisualizer(&visualizer);
   scp.enableLogging();
-  scp.computeMinCostCircularPath();
+  Path p = scp.computeMinCostCircularPath();
+  std::cout << "total cost = " << p.cost << "\n";
 }

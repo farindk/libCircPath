@@ -180,6 +180,7 @@ template <class Cell>  Path ExtractPath_Left2Right(const CellMatrix<Cell>& nodes
 }
 
 
+#if 0
 template <class CostMatrix>
 double PathCost(const Path& p, const CostMatrix& cost)
 {
@@ -196,12 +197,12 @@ double PathCost(const Path& p, const CostMatrix& cost)
       const int bottom = p.bottomRow(x);
 
       for (int y=top;y<=bottom;y++)
-	costsum += cost.CostE(x%w,y);
+	costsum += cost.costS(x%w,y);
     }
 
   return costsum;
 }
-
+#endif
 
 
 #endif

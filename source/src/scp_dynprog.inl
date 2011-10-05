@@ -19,7 +19,8 @@ Path SCP_DynProg<topology, EdgeCostsT, Cell>::computeMinCostCircularPath()
 
       if (isLoggingEnabled())
 	{
-	  cout << "y:" << y << " : " << path.cost << endl;
+	  cout << "y:" << y << " : " << path.cost << " ";
+	  ShortPrintPath(path); cout << "\n";
 
 	  Visualizer* v = getVisualizer();
 	  if (v)

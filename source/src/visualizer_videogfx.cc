@@ -106,3 +106,21 @@ void drawPath(Image<Pixel>& img, const Path& path, Color<Pixel> col)
         }
     }
 }
+
+
+void Visualizer_VideoGfx::drawArea(const Path& abovepath, const Path& belowpath, int colorHex)
+{
+  ::drawArea(m_disp, abovepath, belowpath, Color<Pixel>(colorHex>>16, (colorHex>>8)&0xFF, colorHex&0xFF));
+}
+
+
+void drawArea(Image<Pixel>& img, const Path& abovepath, const Path& belowpath, Color<Pixel> col)
+{
+  int w = abovepath.getWidth();
+
+  for (int c=0;c<w;c++)
+    {
+      DrawLine(img, c,abovepath.topRow(c), c,belowpath.bottomRow(c), col);
+    }
+}
+
