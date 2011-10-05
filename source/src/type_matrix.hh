@@ -15,6 +15,12 @@ public:
 
   void create(int w,int h, int border=0)
   {
+    if (mAllocData)
+      {
+	if (mWidth==w && mHeight==h && mStride==h+2*border) return;
+	else delete[] mAllocData;
+      }
+
     mStride = h+2*border;
     mWidth  = w;
     mHeight = h;

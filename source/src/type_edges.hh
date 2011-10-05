@@ -19,8 +19,8 @@ enum Topology { Cylinder, Torus };
 
    TODO: do we still need the topology parameter?
  */
-template <class Cost, Topology topology=Torus> class EdgeCosts;
-template <class Cost, Topology topology=Torus> class NodeCosts;
+//template <class Cost> class EdgeCosts;
+//template <class Cost> class NodeCosts;
 
 
 template <class T> struct Triple { T a,b,c; };
@@ -68,7 +68,7 @@ private:
 /* Torus
  */
 template <class Cost>
-class EdgeCosts<Cost,Torus> : public Matrix< Triple<Cost> >
+class EdgeCosts_Torus : public Matrix< Triple<Cost> >
 {
 public:
   typedef Cost CostType;
@@ -95,7 +95,7 @@ public:
 
 
 template <class Cost>
-class NodeCosts<Cost,Torus> : public Matrix<Cost>
+class NodeCosts_Torus : public Matrix<Cost>
 {
 public:
   typedef Cost CostType;
@@ -112,6 +112,7 @@ public:
      vertically (y),   the coordinate can be arbitrary (but positive)
      horizontally (x), the coordinate must be in the range [0;w[
    */
+  Cost costNE(int x,int y) const { return CostTraits<Cost>::LargeVal(); }
   Cost costE (int x,int y) const { return (*this)(x,y); }
   Cost costSE(int x,int y) const { return (*this)(x,y); }
   Cost costS (int x,int y) const { return (*this)(x,y); }
@@ -122,7 +123,7 @@ public:
 /* Cylinder
  */
 template <class Cost>
-class EdgeCosts<Cost,Cylinder> : public Matrix< Triple<Cost> >
+class EdgeCosts_Cylinder : public Matrix< Triple<Cost> >
 {
 public:
   typedef Cost CostType;
@@ -141,6 +142,7 @@ public:
      vertically, the modulo-operation is handled in this class,
      horizontally, it must be taken care of in the main program
    */
+  Cost costS (int x,int y) const { return CostTraits<Cost>::LargeVal(); }
   Cost costNE(int x,int y) const { return (*this)(x,y).a; }
   Cost costE (int x,int y) const { return (*this)(x,y).b; }
   Cost costSE(int x,int y) const { return (*this)(x,y).c; }
@@ -153,7 +155,7 @@ private:
 
 
 template <class Cost>
-class NodeCosts<Cost,Cylinder> : public Matrix<Cost>
+class NodeCosts_Cylinder : public Matrix<Cost>
 {
 public:
   typedef Cost CostType;
@@ -170,6 +172,7 @@ public:
      vertically, the modulo-operation is handled in this class,
      horizontally, it must be taken care of in the main program
    */
+  Cost costS (int x,int y) const { return CostTraits<Cost>::LargeVal(); }
   Cost costNE(int x,int y) const { return (*this)(x,y); }
   Cost costE (int x,int y) const { return (*this)(x,y); }
   Cost costSE(int x,int y) const { return (*this)(x,y); }
