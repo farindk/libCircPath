@@ -21,7 +21,7 @@ OBJS = test.o main.o path.o
 
 #  scp_farinbb_no_cutaway.o
 
-CXXFLAGS = -O99 -g # `libvideogfx-config --cflags` -mtune=athlon64 `gsl-config --cflags`
+CXXFLAGS = -O0 -g # `libvideogfx-config --cflags` -mtune=athlon64 `gsl-config --cflags`
 CXX=g++
 
 shcp: $(OBJS)

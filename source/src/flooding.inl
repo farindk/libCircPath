@@ -1,39 +1,77 @@
 
+#include <assert.h>
 
-template <class Cell, class CostMatrix>
-inline void fillNode(CellMatrix<Cell>& nodes, const EdgeCosts& cost, int r, int c, int cNorm, int cNorm1)
+template <class Cell, class EdgeCostsT>
+inline void fillNode(CellMatrix<Cell>& nodes, const EdgeCostsT& cost, int r, int c, int rModH, int cModW)
 {
-  typedef typename EdgeCosts::CostType Cost;
+  typedef typename EdgeCostsT::CostType Cost;
 
-  const Cost cE;  if (cost.hasE)  cE  = nodes(c-1,r  ).costSum + cost.CostE (cNorm1, r  );
-  const Cost cSE; if (cost.hasSE) cSE = nodes(c-1,r-1).costSum + cost.CostSE(cNorm1, r-1);
-  const Cost cS;  if (cost.hasS)  cS  = nodes(c  ,r-1).costSum + cost.CostS (cNorm , r-1);
-  const Cost cNE; if (cost.hasNE) cNE = nodes(c-1,r+1).costSum + cost.CostNE(cNorm1, r-1);
+  Cost cE;  if (cost.hasE)  cE  = nodes(c-1,r  ).costSum + cost.costE (cModW, rModH);
+  Cost cSE; if (cost.hasSE) cSE = nodes(c-1,r-1).costSum + cost.costSE(cModW, rModH);
+  Cost cS;  if (cost.hasS)  cS  = nodes(c  ,r-1).costSum + cost.costS (cModW, rModH);
+  Cost cNE; if (cost.hasNE) cNE = nodes(c-1,r+1).costSum + cost.costNE(cModW, rModH);
 
-  if (!cost.hasSE || cE <= cSE)
+  if (cost.hasE && (!cost.hasSE || cE <= cSE))
     {
-      if (!cost.hasS || cNE <= cS)
+      // E && !SE
+      // E && SE && E<=SE
+      // SE cannot be minimum (does not exist, or larger than E)
+      // -> E exists, SE does not matter
+      // *E S NE
+
+      if (cost.hasNE && (!cost.hasS || cNE <= cS))
 	{
-	  if (!cost.hasNE || cE <= cNE) goto toE;
-	  else                          goto toNE;
+	  // -> NE exists, S does not matter
+	  // *E *NE
+
+	  if   (cE <= cNE) goto toE;
+	  else             goto toNE;
 	}
       else
 	{
+	  // -> NE does not matter
+	  // *E S
+
 	  if (!cost.hasS || cE <= cS) goto toE;
 	  else                        goto toS;
 	}
     }
   else
     {
-      if (!cost.hasS || cNE <= cS)
+      // !E
+      // E && SE && E>SE
+      // E cannot be minimum (does not exist, or larger than SE)
+      // -> E does not matter
+      // SE S NE
+
+      if (cost.hasNE && (!cost.hasS || cNE <= cS))
 	{
-	  if (!cost.hasNE || cSE <= cNE) goto toSE;
-	  else                           goto toNE;
+	  // -> NE exists, S does not matter
+	  // SE *NE
+
+	  if (!cost.hasSE || cNE <= cSE) goto toNE;
+	  else                           goto toSE;
 	}
       else
 	{
-	  if (!cost.hasS || cSE <= cS) goto toSE;
-	  else                         goto toS;
+	  // -> NE does not matter
+	  // SE S
+
+	  if (cost.hasSE && (!cost.hasS || cSE <= cS))
+	    {
+	      // -> SE exists, S does not matter
+	      // *SE
+
+	      goto toSE;
+	    }
+	  else
+	    {
+	      // -> SE does not matter
+	      // S
+
+	      if (cost.hasS) goto toS;
+	      else { assert(false); /* do edge defined! */ }
+	    }
 	}
     }
 
@@ -121,57 +159,98 @@ inline void fillNode_Cylinder(NodeMatrix<Cell>& nodes, const CostMatrix& cost, i
 
 /* This function will overwrite the whole first column and
    the whole area between (including) the rows 'startrow' and 'endrow+h'
- */
-template <class CostMatrix, class NodeMatrix>
-class Flooding<Torus,CostMatrix,NodeMatrix>
+*/
+template <class EdgeCostsT, class CellMatrixT>
+void Flooding<EdgeCostsT,CellMatrixT>::Flood_Unrestricted(const EdgeCostsT& cost, CellMatrixT& nodes,
+							  int firstStartRow, int lastStartRow,
+							  int firstFloodRow, int lastFloodRow)
 {
-public:
-  static void Flood_Unrestricted(const CostMatrix& cost, NodeMatrix& nodes, int startrow, int endrow)
-  {
-    typedef typename CostMatrix::CostType Cost;
+  int w = cost.getWidth();
+  int h = cost.getHeight();
 
-    const typename NodeMatrix::IndexType w = cost.AskWidth();
-    const typename NodeMatrix::IndexType h = cost.AskHeight();
+  typedef typename EdgeCostsT::CostType Cost;
 
-    // --- first column ---
+  // --- first column ---
 
-    // fill first column with high cost and no predecessor
+  // fill first column with high cost and no predecessor
 
-    for (int r=0; r<2*h; r++)
-      {
-	nodes(0,r).costSum = CostTraits<Cost>::LargeSum();
-	nodes(0,r).setNoPredecessor(); // TODO CHECK: not really needed
-      }
+  for (int r=firstFloodRow; r<=lastFloodRow; r++)
+    {
+      nodes(0,r).costSum = CostTraits<Cost>::LargeSum();
+      nodes(0,r).setNoPredecessor(); // TODO CHECK: not really needed
+    }
 
 
-    // Set cost for start-nodes to zero.
+  // Set cost for start-nodes to zero.
 
-    for (int r=startrow; r<=endrow; r++)
-      { nodes(0,r).clear(); }
+  for (int r=firstStartRow; r<=lastStartRow; r++)
+    { nodes(0,r).clear(); }
 
-    endrow += h;
-
-
-    // --- process remaining columns ---
-
-    for (int c=1;c<=w;c++)
-      {
-	// process first row (only E)
-
-	nodes(c,startrow).propagateFrom( nodes(c-1, startrow),
-					 nodes(c-1, startrow).costSum + cost.CostE(c-1,startrow),
-					 c-1,startrow );
-
-	// process main area (S, E, and SE)
-
-	for (int r=startrow+1;r<=endrow;r++)
-	  {
-	    fillNode_Torus(nodes, cost, r,c, c%w,c-1);
-	  }
-      }
-  }
+  const int matrixHeight = nodes.getHeight();
+  nodes(0,          -1).costSum = CostTraits<Cost>::LargeSum();
+  nodes(0,matrixHeight).costSum = CostTraits<Cost>::LargeSum();
 
 
+  // --- process remaining columns (except last) ---
+
+  for (int c=1;c<w;c++)
+    {
+      // put blocking markers
+      if (cost.hasS || cost.hasSE) nodes(c,          -1).costSum = CostTraits<Cost>::LargeSum();
+      if (cost.hasNE)              nodes(c,matrixHeight).costSum = CostTraits<Cost>::LargeSum();
+
+
+      // process flooding area
+
+#if 1
+      // this is the readable version, but which requires the modulo operation
+
+      for (int r=firstFloodRow;r<=lastFloodRow;r++)
+	{
+	  fillNode(nodes, cost, r,c, r %h,c);
+	}
+#endif
+
+#if 0
+      // This is the same as the readable version above, without requiring the module operation.
+      // This code is almost twice as fast!
+
+      int rs    =firstFloodRow;
+      int rsMod =rs%h;
+      int step  =rs/h;
+      int re    =std::min(lastFloodRow,(step+1)*h-1);
+      int offset=step*h;
+
+      for (;;)
+	{
+	  for (int r=rs;r<=re;r++)
+	    {
+	      fillNode(nodes, cost, r,c, r-offset /*%h*/,c);
+	    }
+
+	  step++;
+	  rs = step*h;
+	  if (rs>lastFloodRow) break;
+
+	  rsMod=0;
+	  re = std::min(lastFloodRow,(step+1)*h-1);
+	  offset += h;
+	}
+#endif
+    }
+
+  // --- process last column ---
+
+  nodes(w,          -1).costSum = CostTraits<Cost>::LargeSum();
+  nodes(w,matrixHeight).costSum = CostTraits<Cost>::LargeSum();
+
+  for (int r=firstFloodRow;r<=lastFloodRow;r++)
+    {
+      fillNode(nodes, cost, r,w, r%h,0 /* w%w */);
+    }
+}
+
+#if 0
   /*
     Flood the graph between (including) "abovepath" and "belowpath".
   */
@@ -352,10 +431,10 @@ public:
 	  }
       }
   }
-};
+#endif
 
 
-
+#if 0
 template <class CostMatrix, class NodeMatrix>
 class Flooding<Cylinder,CostMatrix,NodeMatrix>
 {
@@ -547,4 +626,4 @@ public:
       }
   }
 };
-
+#endif

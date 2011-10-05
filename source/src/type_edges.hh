@@ -3,6 +3,7 @@
 #define TYPE_EDGES_HH
 
 #include "type_matrix.hh"
+#include "type_costtraits.hh"
 
 
 enum Topology { Cylinder, Torus };
@@ -50,13 +51,13 @@ public:
      vertically, the modulo-operation is handled in this class,
      horizontally, it must be taken care of in the main program
    */
-  Cost costNE(int x,int y) const { return (*this)(x,y%h()).a; }
-  Cost costE (int x,int y) const { return (*this)(x,y%h()).b; }
-  Cost costSE(int x,int y) const { return (*this)(x,y%h()).c; }
-  Cost costS (int x,int y) const { return (*this)(x,y%h()).d; }
+  Cost costNE(int x,int y) const { return (*this)(x,y).a; }
+  Cost costE (int x,int y) const { return (*this)(x,y).b; }
+  Cost costSE(int x,int y) const { return (*this)(x,y).c; }
+  Cost costS (int x,int y) const { return (*this)(x,y).d; }
 
 private:
-  inline int h() const { return Matrix<Triple<Cost> >::getHeight(); }  // only to enhance code readability
+  //inline int h() const { return Matrix<Triple<Cost> >::getHeight(); }  // only to enhance code readability
 
   bool mPlanar;
 };
@@ -86,9 +87,10 @@ public:
      vertically (y),   the coordinate can be arbitrary (but positive)
      horizontally (x), the coordinate must be in the range [0;w[
    */
-  Cost costE (int x,int y) const { return (*this)(x,y% Matrix<Triple<Cost> >::getHeight()).a; }
-  Cost costSE(int x,int y) const { return (*this)(x,y% Matrix<Triple<Cost> >::getHeight()).b; }
-  Cost costS (int x,int y) const { return (*this)(x,y% Matrix<Triple<Cost> >::getHeight()).c; }
+  Cost costNE(int x,int y) const { return CostTraits<Cost>::LargeVal(); }
+  Cost costE (int x,int y) const { return (*this)(x,y).a; }
+  Cost costSE(int x,int y) const { return (*this)(x,y).b; }
+  Cost costS (int x,int y) const { return (*this)(x,y).c; }
 };
 
 
@@ -110,9 +112,9 @@ public:
      vertically (y),   the coordinate can be arbitrary (but positive)
      horizontally (x), the coordinate must be in the range [0;w[
    */
-  Cost costE (int x,int y) const { return (*this)(x,y% Matrix<Triple<Cost> >::getHeight()); }
-  Cost costSE(int x,int y) const { return (*this)(x,y% Matrix<Triple<Cost> >::getHeight()); }
-  Cost costS (int x,int y) const { return (*this)(x,y% Matrix<Triple<Cost> >::getHeight()); }
+  Cost costE (int x,int y) const { return (*this)(x,y); }
+  Cost costSE(int x,int y) const { return (*this)(x,y); }
+  Cost costS (int x,int y) const { return (*this)(x,y); }
 };
 
 
@@ -139,12 +141,12 @@ public:
      vertically, the modulo-operation is handled in this class,
      horizontally, it must be taken care of in the main program
    */
-  Cost costNE(int x,int y) const { return (*this)(x,y%h()).a; }
-  Cost costE (int x,int y) const { return (*this)(x,y%h()).b; }
-  Cost costSE(int x,int y) const { return (*this)(x,y%h()).c; }
+  Cost costNE(int x,int y) const { return (*this)(x,y).a; }
+  Cost costE (int x,int y) const { return (*this)(x,y).b; }
+  Cost costSE(int x,int y) const { return (*this)(x,y).c; }
 
 private:
-  inline int h() const { return Matrix<Triple<Cost> >::getHeight(); }  // only to enhance code readability
+  //inline int h() const { return Matrix<Triple<Cost> >::getHeight(); }  // only to enhance code readability
 };
 
 
@@ -168,12 +170,12 @@ public:
      vertically, the modulo-operation is handled in this class,
      horizontally, it must be taken care of in the main program
    */
-  Cost costNE(int x,int y) const { return (*this)(x,y%h()); }
-  Cost costE (int x,int y) const { return (*this)(x,y%h()); }
-  Cost costSE(int x,int y) const { return (*this)(x,y%h()); }
+  Cost costNE(int x,int y) const { return (*this)(x,y); }
+  Cost costE (int x,int y) const { return (*this)(x,y); }
+  Cost costSE(int x,int y) const { return (*this)(x,y); }
 
 private:
-  inline int h() const { return Matrix<Triple<Cost> >::getHeight(); }  // only to enhance code readability
+  //inline int h() const { return Matrix<Triple<Cost> >::getHeight(); }  // only to enhance code readability
 };
 
 

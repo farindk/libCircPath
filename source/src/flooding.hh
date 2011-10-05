@@ -2,15 +2,16 @@
 #ifndef FLOODING_HH
 #define FLOODING_HH
 
-#include "type_cost.hh"
+#include "type_edges.hh"
 #include "type_cell.hh"
-#include "util_path.hh"
+#include "type_costtraits.hh"
+#include "path.hh"
 
 
 
 /* Floods from startrow until startrow+height.
 */
-template <Topology topology, class CostMatrixT, class NodeMatrixT> class Flooding
+template <class EdgeCostsT, class CellMatrixT> class Flooding
 {
 public:
   /* Flood the matrix with valid start nodes in the range [rowRangeStart;rowRangeEnd].
@@ -18,14 +19,17 @@ public:
      Often, one will set the range to only a single node (rowRangeStart==rowRangeEnd).
      A range is used, e.g., for the Branch-and-bound algorithm.
    */
+  /*
   static void Flood_Unrestricted(const CostMatrixT& cost, NodeMatrixT& nodes,
 				 int rowRangeStart, int rowRangeEnd);
-
+  */
 
   // NEW ->
   static void Flood_Unrestricted(const EdgeCostsT& cost, CellMatrixT& nodes,
 				 int firstStartRow, int lastStartRow,
 				 int firstFloodRow, int lastFloodRow);
+
+#if 0
   /*
     if (cost.hasNE()) computeRangeFirst--;
     if (cost.hasSE() || cost.hasS()) computeRangeLast++;
@@ -47,6 +51,7 @@ public:
 					const ColumnPath& abovepath,
 					const ColumnPath& belowpath,
 					const Position& startpoint);
+#endif
 };
 
 //  template <class CostMatrix, class NodeMatrix>
@@ -55,8 +60,8 @@ public:
 /* cNorm = c%w; cNorm1 = (c-1)%w
  */
 
-template <class Cell, class CostMatrix>
-inline void fillNode(NodeMatrix<Cell>& nodes, const CostMatrix& cost, int r, int c, int cNorm, int cNorm1);
+template <class Cell, class EdgeCostsT>
+inline void fillNode(CellMatrix<Cell>& nodes, const EdgeCostsT& cost, int r, int c, int rModH, int cModW);
 
 /* (not exported)
 template <class Cell, class CostMatrix>
