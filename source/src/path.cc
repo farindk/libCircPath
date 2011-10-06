@@ -13,7 +13,7 @@ inline bool within(int n,int above,int below)
 }
 
 
-bool Touching(const Path& abovepath, const Path& belowpath)
+bool PathsAreTouching(const Path& abovepath, const Path& belowpath)
 {
   const int w = abovepath.getWidth();
 
@@ -33,6 +33,7 @@ Position TouchPoint(const Path& abovepath, const Path& belowpath)
   int touching_column=-1;
   for (int c=0;c<w;c++)
     {
+      //std::cout << abovepath.topRow(c) << " <= " << belowpath.topRow(c) << "\n";
       assert(abovepath.topRow(c) <= belowpath.topRow(c));
 
       //cout << c << ": " <<  belowpath.toprow[c] << "<=" << abovepath.bottomrow[c] << endl;

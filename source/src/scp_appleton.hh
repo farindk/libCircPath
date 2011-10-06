@@ -10,16 +10,6 @@
 #include "logging.hh"
 
 
-struct source_set
-{
-  int startrow, endrow;
-  bool circular;
-  Path best_path;
-};
-
-bool operator<(const source_set& a,
-	       const source_set& b);
-  
 
 template <Topology topology, class EdgeCostsT,
 	  class Cell = Cell_Std<typename CostTraits<typename EdgeCostsT::CostType>::SumType> >
@@ -40,6 +30,15 @@ public:
 private:
   const EdgeCostsT* m_cost;
   CellMatrix<Cell> m_matrix;
+
+  struct source_set
+  {
+    int startrow, endrow;
+    bool circular;
+    Path best_path;
+
+    bool operator<(const source_set& b) const;
+  };
 
   source_set createSet(int start,int end);
 };

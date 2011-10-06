@@ -2,16 +2,16 @@
 #include <iostream>
 
 
-
-inline bool operator<(const source_set& a,
-		      const source_set& b)
+template <Topology topology, class EdgeCostsT, class Cell>
+inline bool SCP_Appleton<topology,EdgeCostsT,Cell>::source_set::operator<(const source_set& b) const
 {
-  return a.best_path.cost > b.best_path.cost;
+  return best_path.cost > b.best_path.cost;
 }
 
 
 template <Topology topology, class EdgeCostsT, class Cell>
-source_set SCP_Appleton<topology, EdgeCostsT, Cell>::createSet(int start,int end)
+typename SCP_Appleton<topology, EdgeCostsT, Cell>::source_set
+SCP_Appleton<topology, EdgeCostsT, Cell>::createSet(int start,int end)
 {
   typedef typename Cell::CostSumType CostSum;
 

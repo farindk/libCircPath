@@ -15,6 +15,8 @@ using namespace videogfx;
 #include "flooding.hh"
 #include "scp_dynprog.hh"
 #include "scp_maes.hh"
+#include "scp_appleton.hh"
+#include "scp_farin.hh"
 #include "visualizer_videogfx.hh"
 
 
@@ -95,40 +97,57 @@ void test_dynProg_largeTorus()
   typedef CostTraits<Cost>::SumType CostSum;
   typedef NodeCosts_Torus<Cost> Edges;
 
-  int w = 2000;
-  int h = 2000;
+  int w = 1000;
+  int h = 1000;
+  int s=0;
 
-  CellMatrix< Cell_Std<CostSum> > matrix;
-  matrix.create(w+1,h*2,1);
+  for (;s<100;s++)
+    {
+      //s=352;
+      srand(s);
 
-  Edges edges;
-  edges.create(w,h);
-  for (int x=0;x<edges.getWidth();x++)
-    for (int y=0;y<edges.getHeight();y++)
-      {
-	int r = rand()%256;
-	edges.setCost (x,y, r);
-      }
+      CellMatrix< Cell_Std<CostSum> > matrix;
+      matrix.create(w+1,h*2,1);
 
-  std::cout << "search...\n";
+      Edges edges;
+      edges.create(w,h);
+      for (int x=0;x<edges.getWidth();x++)
+	for (int y=0;y<edges.getHeight();y++)
+	  {
+	    int r = rand()%256;
+	    edges.setCost (x,y, r);
+	    //std::cout << x << ";" << y << " NODEc = " << r << "\n";
+	  }
 
-  //typedef Flooding< NodeCosts_Torus<unsigned char>, CellMatrix< Cell_Std<float> > > MyFlooding;
+      std::cout << "search...\n";
 
-  Bitmap<Pixel> costbm(w,h);
-  for (int y=0;y<h;y++)
-    for (int x=0;x<w;x++)
-      costbm.AskFrame()[y][x]=edges.costE(x,y);
+      //typedef Flooding< NodeCosts_Torus<unsigned char>, CellMatrix< Cell_Std<float> > > MyFlooding;
 
-
-  Visualizer_VideoGfx visualizer;
-  //visualizer.initialize(costbm, Visualizer::Torus);
+      Bitmap<Pixel> costbm(w,h);
+      for (int y=0;y<h;y++)
+	for (int x=0;x<w;x++)
+	  costbm.AskFrame()[y][x]=edges.costE(x,y);
 
 
-  //SCP_DynProg<Torus, Edges> scp;
-  SCP_Maes<Torus, Edges> scp;
-  scp.setEdgeCosts(edges);
-  //scp.setVisualizer(&visualizer);
-  scp.enableLogging();
-  Path p = scp.computeMinCostCircularPath();
-  std::cout << "total cost = " << p.cost << "\n";
+      Visualizer_VideoGfx visualizer;
+      //visualizer.initialize(costbm, Visualizer::Torus);
+
+
+      //SCP_DynProg<Torus, Edges> scp2;
+      SCP_Maes<Torus, Edges> scp2;
+      //SCP_Appleton<Torus, Edges> scp;
+      SCP_Farin<Torus, Edges> scp;
+      scp.setEdgeCosts(edges);
+      //scp.setVisualizer(&visualizer);
+      //scp.enableLogging();
+      Path p = scp.computeMinCostCircularPath();
+      std::cout << "total cost = " << p.cost << "\n";
+
+      scp2.setEdgeCosts(edges);
+      //scp2.enableLogging();
+      Path p2; // = scp2.computeMinCostCircularPath();
+      std::cout << "ref cost = " << p2.cost << "\n";
+
+      //if (p.cost != p2.cost) { std::cout << "SEED=" << s << "\n"; exit(0); }
+    }
 }

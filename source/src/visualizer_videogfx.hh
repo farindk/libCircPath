@@ -29,6 +29,7 @@ public:
   char showVisualization(bool wait_for_keypress=true);  // returns the key pressed while showing the image
   void drawPath(const Path& path, int colorHex);
   void drawArea(const Path& abovepath, const Path& belowpath, int colorHex);
+  void markRange(int start,int end, int endOffset, int colorHex);
 
 private:
   bool m_opened;

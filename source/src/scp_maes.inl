@@ -40,8 +40,8 @@ void SCP_Maes<topology,EdgeCostsT,Cell>::rangeRecurse(Path& bestpath,
       break;
     }
 
-  assert(toppath   .startRow()%h == toppath   .endRow()%h);
-  assert(bottompath.startRow()%h == bottompath.endRow()%h);
+  assert(toppath   .startRow() == toppath   .endRow()-endRowOffset);
+  assert(bottompath.startRow() == bottompath.endRow()-endRowOffset);
 
   // if no path fits inbetween top-path and bottom-path, we cannot subdivide further
   if (bottompath.startRow() - toppath.startRow() <= 1)

@@ -124,3 +124,15 @@ void drawArea(Image<Pixel>& img, const Path& abovepath, const Path& belowpath, C
     }
 }
 
+
+void Visualizer_VideoGfx::markRange(int start,int end, int endOffset, int colorHex)
+{
+  Color<Pixel> col(colorHex>>16, (colorHex>>8)&0xFF, colorHex&0xFF);
+
+  int w = m_disp.AskWidth();
+
+  DrawLine(m_disp,0,start,w-1,start+endOffset, col);
+  DrawLine(m_disp,0,end  ,w-1,end+endOffset,   col);
+  FillRectangle(m_disp,0,start,5,end, col);
+  FillRectangle(m_disp,w-6,start+endOffset,w-1,end+endOffset, col);
+}

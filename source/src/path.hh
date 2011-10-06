@@ -143,7 +143,7 @@ template <class Cell>  Path ExtractPath_Left2Right(const CellMatrix<Cell>& nodes
 
   //const Cell*const* nodep = nodes.AskFrame();
   //Index h = nodes.AskHeight();
-  Index w = nodes.AskWidth(); // the padded width (== width of cost array +1)
+  int w = nodes.getWidth(); // the padded width (== width of cost array +1)
 
   Path path;
 
@@ -168,6 +168,8 @@ template <class Cell>  Path ExtractPath_Left2Right(const CellMatrix<Cell>& nodes
 
       Index newX = nodes(x,y).prevX;
       Index newY = nodes(x,y).prevY;
+
+      //std::cout << x << ";" << y << " -> " << newX << ";" << newY << "\n";
 
       if (newX==-1) break;
       assert(newX==x || newX==x+1);
