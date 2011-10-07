@@ -1,5 +1,5 @@
 
-OBJS = test.o main.o path.o visualizer_videogfx.o
+OBJS = test.o main.o path.o visualizer_videogfx.o cmdline.o input.o integral_invariant.o control.o
 
 #util_path.o visualizer.o \
 #  input.o integral_invariant.o \
@@ -21,11 +21,11 @@ OBJS = test.o main.o path.o visualizer_videogfx.o
 
 #  scp_farinbb_no_cutaway.o
 
-CXXFLAGS = -O99 -g `libvideogfx-config --cflags` # -mtune=athlon64 `gsl-config --cflags`
+CXXFLAGS = -O99 -g `libvideogfx-config --cflags` `gsl-config --cflags` # -mtune=athlon64 
 CXX=g++
 
 shcp: $(OBJS)
-	g++ -O0 -g -o $@ $(OBJS) `libvideogfx-config --libs` # `gsl-config --libs`
+	g++ -O0 -g -o $@ $(OBJS) `libvideogfx-config --libs` `gsl-config --libs`
 
 #segmenter: $(SEGMOBJS)
 #	g++ -O99 -o $@ $(SEGMOBJS) `libvideogfx-config --libs`
@@ -35,9 +35,6 @@ shcp: $(OBJS)
 
 #shortest_circular_path.o: cmdline.c
 
-#cmdline.c: cmdline.ggo
-#	gengetopt -u -i cmdline.ggo
-
 # pull in dependency info for *existing* .o files
 -include $(OBJS:.o=.d)
 
@@ -46,8 +43,8 @@ shcp: $(OBJS)
 	g++ -c $(CXXFLAGS) $*.cc -o $*.o
 	@g++ -MM $(CXXFLAGS) $*.cc > $*.d
 
-#cmdline.c: cmdline.ggo
-#	gengetopt -u -i cmdline.ggo
+cmdline.c: cmdline.ggo
+	gengetopt -u -i cmdline.ggo
 
 clean:
 	-rm $(OBJS) $(SEGMOBJS) *~

@@ -27,9 +27,21 @@ template <class T> struct Triple { T a,b,c; };
 template <class T> struct Quad { T a,b,c,d; };
 
 
+class EdgeCosts
+{
+public:
+  virtual ~EdgeCosts() { }
+
+  virtual std::string getGraphTypeName() const { return "(undefined)"; }
+  virtual Topology    getGraphTopology() const { return Torus; }
+
+  virtual int getWidth()  const = 0;
+  virtual int getHeight() const = 0;
+};
+
 
 template <class Cost>
-class EdgeCosts_General : public Matrix< Quad<Cost> >
+class EdgeCosts_General : public Matrix< Quad<Cost> >, public EdgeCosts
 {
 public:
   EdgeCosts_General(bool planar) { mPlanar=planar; }
@@ -56,6 +68,11 @@ public:
   Cost costSE(int x,int y) const { return (*this)(x,y).c; }
   Cost costS (int x,int y) const { return (*this)(x,y).d; }
 
+  virtual std::string getGraphTypeName() const { return "8-connected"; }
+  virtual Topology    getGraphTopology() const { return Torus; }
+  virtual int getWidth()  const { return Matrix<Quad<Cost> >::getWidth(); }
+  virtual int getHeight() const { return Matrix<Quad<Cost> >::getHeight(); }
+
 private:
   //inline int h() const { return Matrix<Triple<Cost> >::getHeight(); }  // only to enhance code readability
 
@@ -68,7 +85,7 @@ private:
 /* Torus
  */
 template <class Cost>
-class EdgeCosts_Torus : public Matrix< Triple<Cost> >
+class EdgeCosts_Torus : public Matrix< Triple<Cost> >, public EdgeCosts
 {
 public:
   typedef Cost CostType;
@@ -91,11 +108,16 @@ public:
   Cost costE (int x,int y) const { return (*this)(x,y).a; }
   Cost costSE(int x,int y) const { return (*this)(x,y).b; }
   Cost costS (int x,int y) const { return (*this)(x,y).c; }
+
+  virtual std::string getGraphTypeName() const { return "torus (edge costs)"; }
+  virtual Topology    getGraphTopology() const { return Torus; }
+  virtual int getWidth()  const { return Matrix<Triple<Cost> >::getWidth(); }
+  virtual int getHeight() const { return Matrix<Triple<Cost> >::getHeight(); }
 };
 
 
 template <class Cost>
-class NodeCosts_Torus : public Matrix<Cost>
+class NodeCosts_Torus : public Matrix<Cost>, public EdgeCosts
 {
 public:
   typedef Cost CostType;
@@ -116,6 +138,11 @@ public:
   Cost costE (int x,int y) const { return (*this)(x,y); }
   Cost costSE(int x,int y) const { return (*this)(x,y); }
   Cost costS (int x,int y) const { return (*this)(x,y); }
+
+  virtual std::string getGraphTypeName() const { return "torus (node costs)"; }
+  virtual Topology    getGraphTopology() const { return Torus; }
+  virtual int getWidth()  const { return Matrix<Cost>::getWidth(); }
+  virtual int getHeight() const { return Matrix<Cost>::getHeight(); }
 };
 
 
@@ -123,7 +150,7 @@ public:
 /* Cylinder
  */
 template <class Cost>
-class EdgeCosts_Cylinder : public Matrix< Triple<Cost> >
+class EdgeCosts_Cylinder : public Matrix< Triple<Cost> >, public EdgeCosts
 {
 public:
   typedef Cost CostType;
@@ -147,6 +174,11 @@ public:
   Cost costE (int x,int y) const { return (*this)(x,y).b; }
   Cost costSE(int x,int y) const { return (*this)(x,y).c; }
 
+  virtual std::string getGraphTypeName() const { return "non-planar cylinder (edge costs)"; }
+  virtual Topology    getGraphTopology() const { return Cylinder; }
+  virtual int getWidth()  const { return Matrix<Triple<Cost> >::getWidth(); }
+  virtual int getHeight() const { return Matrix<Triple<Cost> >::getHeight(); }
+
 private:
   //inline int h() const { return Matrix<Triple<Cost> >::getHeight(); }  // only to enhance code readability
 };
@@ -155,7 +187,7 @@ private:
 
 
 template <class Cost>
-class NodeCosts_Cylinder : public Matrix<Cost>
+class NodeCosts_Cylinder : public Matrix<Cost>, public EdgeCosts
 {
 public:
   typedef Cost CostType;
@@ -176,6 +208,11 @@ public:
   Cost costNE(int x,int y) const { return (*this)(x,y); }
   Cost costE (int x,int y) const { return (*this)(x,y); }
   Cost costSE(int x,int y) const { return (*this)(x,y); }
+
+  virtual std::string getGraphTypeName() const { return "non-planar cylinder (node costs)"; }
+  virtual Topology    getGraphTopology() const { return Cylinder; }
+  virtual int getWidth()  const { return Matrix<Cost>::getWidth(); }
+  virtual int getHeight() const { return Matrix<Cost>::getHeight(); }
 
 private:
   //inline int h() const { return Matrix<Triple<Cost> >::getHeight(); }  // only to enhance code readability

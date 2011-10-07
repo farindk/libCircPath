@@ -31,6 +31,8 @@ public:
   void drawArea(const Path& abovepath, const Path& belowpath, int colorHex);
   void markRange(int start,int end, int endOffset, int colorHex);
 
+  const Image<Pixel>& getImage() const { return m_disp; }
+
 private:
   bool m_opened;
   GraphType m_type;
