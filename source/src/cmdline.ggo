@@ -1,0 +1,47 @@
+package "Shortest Circular-Path Computation Program"
+version "2.0 (07 Oct 2011)  / (c) Dirk Farin"
+
+section "algorithm selection"
+
+option  "algo"          a "select algorithm ('list' for an overview of options)" string default="farin" no
+option  "graph"         g "select edge pattern: 'torus' (default) or 'cylinder'" string default="torus" no
+
+#section "algorithm parameters"
+#
+#option  "splitpoint"    - "farin-b: split at (center;mincost;alternating)" string default="center" no
+
+section "input data"
+
+option  "image"          i "read input data from an image file (default)" no
+option  "ascii"          t "read input data from an ascii text file" no
+option  "shapes"         S "compare pairs of shape images" no
+option  "shape-skip"     B "only use every n-th shape (in the benchmarking)" int default="1" no
+option  "shape-allpairs" P "include all pairs of shapes (each pair twice and also pairs of twice the same)" no
+option  "shape-rotation" - "rotate shape matrix, such that a segmentation-graph solution \"looks like\" a DTW solution" no
+option  "noise"          n "uniform noise" int default="1" no
+option  "gaussian"       G "gaussian noise" double default="1.0" no
+option  "artificial"     - "synthesize a cost matrix of the specified size" no
+option  "dna"            d "match two cyclic DNA sequences (A,C,G,T, and don't care X)" no
+option  "size"           s "specify matrix size in the format '200x100' (for variable-size inputs)" string default="200x200" no
+#option  "edges"          e "use edge-based costs instead of node-costs" no
+
+# option  "worstcase"      W "construct worst-case input for farin's algorithm" no
+# option  "shape-resample" I "resample shapes to the specified number of point" int no
+
+section "benchmarking mode"
+
+option  "sizechange"    c "create a series with different matrix sizes (format: +X+Y:WxH)" string no
+option  "repetitions"   r "repeat the algorithm several times with same data (for accurate measurements)" int default="1" no
+
+# option  "benchmark"     b "use benchmark mode (1000+5+10)" no
+# option  "runtime"       R "carry out a run-time analysis up-to a maximum matrix size" int default="250" no
+# option  "segmentation"  - "start a GUI in which SCP is used for segmentation" no
+
+section "visualization"
+
+option  "logging"       l "enable logging output" no
+option  "visualize"     v "enable algorithm visualization" no
+#option  "fourquadrants" 4 "enable four-quadrant visualization" no
+option  "save-solution" o "save image showing the solution path" no
+# option  "compatibility-matrix" C "show compatibility matrix (requires --benchmark and --shapes)" no
+option  "print-path"    p "show the solution path" no
